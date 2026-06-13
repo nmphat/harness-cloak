@@ -32,7 +32,7 @@ from .admin import (
 from . import auth, recorder, telemetry
 from .helpers import *
 
-HELP = """Browser Harness
+HELP = """Browser Harness (Cloak edition)
 
 Read SKILL.md for the default workflow and examples.
 
@@ -67,6 +67,11 @@ Commands:
   browser-harness telemetry status    show anonymous telemetry opt-out state
   browser-harness --update [-y]    pull the latest version (agents: pass -y)
   browser-harness --reload         stop the daemon so next call picks up code changes
+  browser-harness --cloak          auto-launch CloakBrowser (stealth Chromium, anti-detect)
+
+CloakBrowser mode:
+  Set BU_CLOAK=1 or pass --cloak to auto-launch a stealth Chromium instance.
+  CloakBrowser bypasses all bot detection (Cloudflare, reCAPTCHA, DataDome, etc.)
 """
 
 USAGE = """Usage:
@@ -373,6 +378,9 @@ def _run(args):
         return
     if args and args[0] == "--debug-clicks":
         os.environ["BH_DEBUG_CLICKS"] = "1"
+        args = args[1:]
+    if args and args[0] == "--cloak":
+        os.environ["BU_CLOAK"] = "1"
         args = args[1:]
     if not args and not sys.stdin.isatty():
         code = sys.stdin.read()

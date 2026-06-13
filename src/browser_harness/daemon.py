@@ -7,6 +7,7 @@ from pathlib import Path
 from . import _ipc as ipc
 from . import auth
 from . import paths
+from .cloak import ensure_cloak_browser, shutdown_cloak_browser
 from cdp_use.client import CDPClient
 
 
@@ -634,6 +635,8 @@ class Daemon:
 
     async def start(self):
         self.stop = asyncio.Event()
+        # Auto-launch CloakBrowser if BU_CLOAK=1
+        ensure_cloak_browser()
         url = get_ws_url()
         log(f"connecting to {_safe_connection_label(url)}")
         self.cdp = _PatientCDPClient(url) if BROWSER_KIND == "local" else CDPClient(url)
@@ -890,5 +893,6 @@ if __name__ == "__main__":
         sys.exit(1)
     finally:
         stop_remote()
+        shutdown_cloak_browser()
         try: os.unlink(PID)
         except FileNotFoundError: pass
